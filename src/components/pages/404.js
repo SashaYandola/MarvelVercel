@@ -7,7 +7,9 @@ const NotFound = () => {
 
   const goBack = () => {
     if (!searchParams.has('utm_source')) {
-      navigate('/login'); // Перенаправляем пользователя на страницу входа
+      navigate('/'); // Перенаправляем пользователя на страницу входа
+    }else{
+      navigate(-1);
     }
   }
   
