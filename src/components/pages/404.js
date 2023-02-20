@@ -3,16 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 
 const NotFound = () => {
   const navigate = useNavigate();
-  const searchParams = new URLSearchParams(window.location.search);
 
   const goBack = () => {
-    if (!searchParams.has('utm_source')) {
-      navigate('/'); // Перенаправляем пользователя на страницу входа
-    }else{
+    // Проверяем, была ли страница загружена напрямую, без перехода по ссылке
+    if (window.performance && window.performance.navigation.type === 1) {
+      navigate('/');
+    } else {
       navigate(-1);
     }
+
   }
-  
 
   return (
     <div>
