@@ -5,13 +5,7 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   const goBack = () => {
-    // Проверяем, была ли страница загружена напрямую, без перехода по ссылке
-    if (window.performance && window.performance.navigation.type === 1) {
-      navigate('/');
-    } else {
-      navigate(-1);
-    }
-
+   navigate ? navigate(-1) : navigate('/')
   }
 
   return (
