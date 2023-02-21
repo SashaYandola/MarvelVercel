@@ -1,6 +1,18 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 import AppHeader from "../appHeader/AppHeader";
-import { MainPage, ComicsPage, NotFound, SingleComicPage} from "../pages";
+import Spinner from "../spinner/Spinner";
+
+// const MainPage = lazy(() => import('../pages').then(module => ({ default: module.MainPage })));
+// const ComicsPage = lazy(() => import('../pages').then(module => ({ default: module.ComicsPage })));                  //<---именованные
+// const NotFound = lazy(() => import('../pages').then(module => ({ default: module.NotFound })));
+// const SingleComicPage = lazy(() => import('../pages').then(module => ({ default: module.SingleComicPage })));
+
+const MainPage = lazy(() => import('../pages/MainPage'));
+const ComicsPage = lazy(() => import('../pages/ComicsPage'));                                                           //<---export default
+const SingleComicPage = lazy(() => import('../pages/singleComicPage/SingleComicPage'));
+const NotFound = lazy(() => import('../pages/404'));
 
 const App = () => {
     return (
@@ -8,12 +20,14 @@ const App = () => {
             <div className="app">
                 <AppHeader />
                 <main>
-                    <Routes>
-                        <Route path="/" element={<MainPage />} />
-                        <Route path="/comics" element={<ComicsPage />} />
-                        <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
-                        <Route path="*" element={<NotFound/>}/>
-                    </Routes>
+                    <Suspense fallback = {<Spinner/>}>
+                        <Routes>
+                            <Route path="/" element={<MainPage />} />
+                            <Route path="/comics" element={<ComicsPage />} />
+                            <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
+                            <Route path="*" element={<NotFound/>}/>
+                        </Routes>
+                    </Suspense>
                 </main>
             </div>
         </Router>
