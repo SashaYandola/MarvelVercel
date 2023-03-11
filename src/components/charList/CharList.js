@@ -7,6 +7,9 @@ import Spinner from "../spinner/Spinner";
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+
+
 const CharList = (props) => {
 
     const [chars, setChars] = useState([]);
@@ -14,7 +17,7 @@ const CharList = (props) => {
     const [offset, setOffset] = useState(300);
     const [charEnded, setCharEnded] = useState(false);
 
-    const {loading, error, getAllCharacters} = useMarvelService();
+    const { loading, error, getAllCharacters } = useMarvelService();
 
     useEffect(() => {
         onRequest(offset, true);
@@ -52,29 +55,31 @@ const CharList = (props) => {
             let imgStyle = item.thumbnail.indexOf('image_not_available') === 44 ? true : false;
 
             return (
-                <li tabIndex={0}
-                    ref={el => itemRefs.current[i] = el}
-                    key={item.id} className="char__item"
-                    onClick={() => {
-                        props.selectChar(item.id);
-                        focusItem(i);
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === ' ' || e.key === "Enter") {
+                <CSSTransition key={item.id} timeout={500} classNames="char__item">
+                    <li tabIndex={0}
+                        ref={el => itemRefs.current[i] = el}
+                        className={`char__item`}
+                        onClick={() => {
                             props.selectChar(item.id);
                             focusItem(i);
-                        }
-                    }}
-                >
-                    <img src={item.thumbnail} alt="abyss" style={imgStyle ? { objectFit: 'unset' } : { objectFit: 'cover' }} />
-                    <div className="char__name">{item.name}</div>
-                </li>
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === ' ' || e.key === "Enter") {
+                                props.selectChar(item.id);
+                                focusItem(i);
+                            }
+                        }}
+                    >
+                        <img src={item.thumbnail} alt="abyss" style={imgStyle ? { objectFit: 'unset' } : { objectFit: 'cover' }} />
+                        <div className="char__name">{item.name}</div>
+                    </li>
+                </CSSTransition>
             )
         })
         return (
-            <ul className="char__grid">
+            <TransitionGroup component={'ul'} className={'char__grid'}>
                 {items}
-            </ul>
+            </TransitionGroup>
         );
     }
 
