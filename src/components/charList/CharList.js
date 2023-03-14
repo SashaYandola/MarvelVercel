@@ -1,14 +1,28 @@
 import './charList.scss';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import useMarvelService from "../../services/MarvelService";
-import ErrorMessage from "../errorMessages/ErrorMessage";
-import Spinner from "../spinner/Spinner";
+import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessages/ErrorMessage';
 
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
+const setContent = (procces, Component, listItemLoading) => {
+    switch (procces) {
+        case 'waiting':
+            return <Spinner />;
+        case 'loading':
+            return listItemLoading ? <Component /> : <Spinner />;
+        case 'confirmed':
+            return <Component />;
+        case 'error':
+            return <ErrorMessage />;
+        default:
+            throw new Error('unexpected prcces state');
+    }
+}
 
 const CharList = (props) => {
 
@@ -17,7 +31,7 @@ const CharList = (props) => {
     const [offset, setOffset] = useState(300);
     const [charEnded, setCharEnded] = useState(false);
 
-    const { loading, error, getAllCharacters } = useMarvelService();
+    const { getAllCharacters, procces, setProcess } = useMarvelService();
 
     useEffect(() => {
         onRequest(offset, true);
@@ -39,18 +53,21 @@ const CharList = (props) => {
     const onRequest = (offset, initial) => {
         initial ? setListItemLoading(false) : setListItemLoading(true);
         getAllCharacters(offset)
-            .then(onCharsLoaded);
+            .then(onCharsLoaded).then(() => setProcess('confirmed'));
     }
 
     const itemRefs = useRef([]);
 
     const focusItem = (id) => {
         itemRefs.current.forEach(item => item.classList.remove('char__item_selected'));
+
         itemRefs.current[id].classList.add('char__item_selected');
+
         itemRefs.current[id].focus();
     }
 
     const ViewItems = (chars) => {
+        console.log('render')
         let items = chars.map((item, i) => {
             let imgStyle = item.thumbnail.indexOf('image_not_available') === 44 ? true : false;
 
@@ -77,22 +94,22 @@ const CharList = (props) => {
             )
         })
         return (
-            <TransitionGroup component={'ul'} className={'char__grid'}>
+
+            <TransitionGroup component={'ul'} className="char__grid">
                 {items}
             </TransitionGroup>
+
         );
     }
 
-    const items = ViewItems(chars);
-
-    const errorMessage = error ? <ErrorMessage /> : null;
-    const spinner = loading && !listItemLoading ? <Spinner /> : null;
+    const element = useMemo(() => {
+        return setContent(procces, () => ViewItems(chars), listItemLoading)
+    // eslint-disable-next-line
+    }, [procces])
 
     return (
         <div className="char__list">
-            {errorMessage}
-            {spinner}
-            {items}
+            {element}
 
             <button className="button button__main button__long"
                 disabled={listItemLoading}
